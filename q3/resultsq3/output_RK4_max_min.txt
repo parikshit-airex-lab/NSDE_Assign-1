@@ -1,0 +1,5 @@
+maximum and minimum values of displacement and velocity are as follows:
+maximum value of displacement is x = 1 at time t = 0
+minimum value of displacement is x = -0.478011 at time t = 9.59375
+maximum value of velocity is v = 0.411387 at time t = 2.65625
+minimum value of velocity is v = -0.827756 at time t = 0.5625
