@@ -186,11 +186,6 @@ int main(){
     real v_initial = 0;
     real interval_length = 15;
 
-    // if(!steps.size() == 0){
-    //     cout<<"No step sizes provided in the input file"<<endl;
-    //     return 1;
-    // }
-
     // read the parameters from the input file
     if(!is_readable_file("inputq3.txt",m,a,k,f_0,w,steps)){
         return 1;
