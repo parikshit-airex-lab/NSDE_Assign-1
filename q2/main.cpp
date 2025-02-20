@@ -144,15 +144,3 @@ int main(){
     if (output_file_RK.is_open()) output_file_RK.close();
     return 0;
 }
-
-
-
-//   Set up the number of points(grid points)
-// vector<real>t;
-// int counter = 0;
-// while(1){
-//     t.push_back(counter*step_size);
-//     counter++;
-//     if(counter*step_size>2) break;
-// }
-// cout<<"t.size(): "<<t.size()<<endl;

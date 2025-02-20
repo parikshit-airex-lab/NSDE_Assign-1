@@ -1,0 +1,921 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{amsmath}  % For better math formatting
+\usepackage[a4paper, top=1in, bottom=1in, left=1in, right=1in, headsep=0.2in, footskip=0.3in]{geometry}
+
+
+\begin{document}
+
+\title{DS289: Assignment-1: Report}
+\author{Parikshit Mahajan}
+\date{February 16, 2025}
+\maketitle
+
+\section*{Question 1}
+\begin{itemize}
+    \item[(a)] For a function \( u(x) \), derive a second-order accurate finite difference approximation to compute 
+    \[
+    \frac{d^2 u}{dx^2}
+    \]
+    at a point \( i \) on a non-uniform grid. The scheme should use a one-sided stencil to the right of \( i \).
+    
+    \item[(b)] Derive a second-order accurate finite difference approximation to compute the cross derivative 
+    \[
+    \frac{\partial^2 u}{\partial x \partial y}
+    \]
+    of a function \( u(x,y) \) on a uniform grid. Obtain the leading-order terms in the truncation error.
+\end{itemize}
+
+\section*{Solution}
+\begin{itemize}
+    \item[(a)] For a non-uniform grid with a one-sided stencil, the general finite difference formula is:
+    \begin{equation}    
+    \frac{d^a u}{dx^a} = \sum_{j=J_1}^{J_2} C_j u_{i+j} + O(\Delta x^r).
+    \end{equation}
+    Setting \( J_1 = 0 \) gives a forward difference scheme. To achieve second-order accuracy, we choose \( a = 2 \) and \( r = 2 \), yielding:
+    \[
+    \frac{d^2 u}{dx^2} = c_0 u_i + c_1 u_{i+1} + c_2 u_{i+2} + c_3 u_{i+3} + O(\Delta x^2).
+    \]   
+
+    Expanding using Taylor series:
+    \[
+    c_3\left[u_{i+3} = u_i + u_i' \sum_{j=1}^{3} \Delta x_j + \frac{u_i''}{2} \left(\sum_{j=1}^{3} \Delta x_j\right)^2 
+    + \frac{u_i'''}{3!} \left(\sum_{j=1}^{3} \Delta x_j\right)^3 + \dots\right]
+    \]
+    \[
+    c_2\left[u_{i+2} = u_i + u_i' \sum_{j=1}^{2} \Delta x_j + \frac{u_i''}{2} \left(\sum_{j=1}^{2} \Delta x_j\right)^2 
+    + \frac{u_i'''}{3!} \left(\sum_{j=1}^{2} \Delta x_j\right)^3 + \dots\right]
+    \]
+    \[
+    c_1\left[u_{i+1} = u_i + u_i' \Delta x_1 + \frac{u_i''}{2} (\Delta x_1)^2 
+    + \frac{u_i'''}{3!} (\Delta x_1)^3 + \dots\right]
+    \]
+    \[
+    c_0u_i = u_i.
+    \]
+    Now we can write this in matrix form and on simplifying the terms we get  as follows :
+    \[
+A =
+\begin{bmatrix}
+1 & 1 & 1 & 1 \\
+0 & \Delta x_1 & \Delta x_1 + \Delta x_2 & \Delta x_1 + \Delta x_2 + \Delta x_3 \\
+0 & \Delta x_1^2 & (\Delta x_1 + \Delta x_2)^2 & (\Delta x_1 + \Delta x_2 + \Delta x_3)^2 \\
+0 & \Delta x_1^3 & (\Delta x_1 + \Delta x_2)^3 & (\Delta x_1 + \Delta x_2 + \Delta x_3)^3
+\end{bmatrix}
+\]
+\[
+\text{Substitutions:} \quad \Delta x_1 = p, \quad \Delta x_1 + \Delta x_2 = q, \quad \Delta x_1 + \Delta x_2 + \Delta x_3 = r
+\]
+
+\[
+A =
+\begin{bmatrix}
+1 & 1 & 1 & 1 \\
+0 & p & q & r \\
+0 & p^2 & q^2 & r^2 \\
+0 & p^3 & q^3 & r^3
+\end{bmatrix}
+\]
+so the matrix form become  \(Ac = b\) : 
+\[
+\text{Substitutions:} \quad \Delta x_1 = p, \quad \Delta x_1 + \Delta x_2 = q, \quad \Delta x_1 + \Delta x_2 + \Delta x_3 = r
+\]
+
+\[
+A =
+\begin{bmatrix}
+1 & 1 & 1 & 1 \\
+0 & p & q & r \\
+0 & p^2 & q^2 & r^2 \\
+0 & p^3 & q^3 & r^3
+\end{bmatrix}
+\]
+
+\[
+c =
+\begin{bmatrix}
+c_0 \\ c_1 \\ c_2 \\ c_3
+\end{bmatrix}, 
+\quad
+b =
+\begin{bmatrix}
+0 \\ 0 \\ 2 \\ 0
+\end{bmatrix}
+\]
+
+\[
+A c = b
+\]
+
+\[
+\begin{bmatrix}
+1 & 1 & 1 & 1 \\
+0 & p & q & r \\
+0 & p^2 & q^2 & r^2 \\
+0 & p^3 & q^3 & r^3
+\end{bmatrix}
+\begin{bmatrix}
+c_0 \\ c_1 \\ c_2 \\ c_3
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 \\ 0 \\ 2 \\ 0
+\end{bmatrix}
+\]
+
+By solving the above matrix using Sympy library in python for which the code  is given in the python file of question 1, we get the following solutions:
+\[
+c_0 = \frac{2(p + q + r)}{p q r}
+\]
+
+\[
+c_1 = \frac{2(-q - r)}{p (p - q)(p - r)}
+\]
+
+\[
+c_2 = \frac{2(p + r)}{q (p - q)(q - r)}
+\]
+
+\[
+c_3 = \frac{2(-p - q)}{r (p q - p r - q r + r^2)}
+\]
+Hence, Second order accurate finite difference approximation to compute 
+\(\frac{d^2u}{dx^2}\) at a point i on a non uniform grid using right handed stencil : 
+
+\[
+\frac{d^2 u}{dx^2} =
+\frac{2(p + q + r)}{p q r} u_i
++ \frac{2(-q - r)}{p (p - q)(p - r)} u_{i+1}
++ \frac{2(p + r)}{q (p - q)(q - r)} u_{i+2}
++ \frac{2(-p - q)}{r (p q - p r - q r + r^2)} u_{i+3}
++ O(\Delta x^2)
+\]
+\item[(b)] We want to find the a second order accurate finite difference approximation to compute the cross derivative of function \(u(x,y)\):
+\begin{equation*}
+    \frac{\partial^2 u}{\partial x \partial y}
+\end{equation*}
+As we can use two sided stencil on a uniform grid, so we will be using second order central difference scheme for two variables \(x , y\).
+we know to compute \(a^{th} \) derivative with \(r^{th}\) order accuracy we required function evaluations at \(a+r-1\) points in case of one variable. As we have two variables \(x,y\) and \(a=2, r=2\) hence \(5\) number of function evaluations considering the symmetry is required.
+Taylor's series expansion for two variables is given by following formula:
+\begin{equation*}
+    u(x, y) = u(a, b) + \sum_{n=1}^{\infty} \frac{1}{n!} \sum_{i+j=n} (x-a)^i (y-b)^j \frac{\partial^n u}{\partial x^i \partial y^j}(a, b) 
+\end{equation*}
+Now, consider the grid spacing:
+\Delta x = \(x_{i+1} - x_i = h\) , \Delta y = \(y_{i+1} - y_i = h\)
+
+So Taylor's series expansions for five symmetric points are as follows:
+
+\[
+c_1\left[ u_{i+1,j+1} = u_{i,j} + \Delta x \frac{\partial u}{\partial x} + \Delta y \frac{\partial u}{\partial y} + \frac{(\Delta x)^2}{2!} \frac{\partial^2 u}{\partial x^2} + \frac{(\Delta y)^2}{2!} \frac{\partial^2 u}{\partial y^2} + \Delta x \Delta y \frac{\partial^2 u}{\partial x \partial y} + O(\Delta x^3)\right]
+\]
+
+\[
+c_2\left [u_{i-1,j-1} = u_{i,j} - \Delta x \frac{\partial u}{\partial x} - \Delta y \frac{\partial u}{\partial y} + \frac{(\Delta x)^2}{2!} \frac{\partial^2 u}{\partial x^2} + \frac{(\Delta y)^2}{2!} \frac{\partial^2 u}{\partial y^2} + \Delta x \Delta y \frac{\partial^2 u}{\partial x \partial y} + O(\Delta x^3)\right]
+\]
+
+\[
+c_3\left[u_{i-1,j+1} = u_{i,j} - \Delta x \frac{\partial u}{\partial x} + \Delta y \frac{\partial u}{\partial y} + \frac{(\Delta x)^2}{2!} \frac{\partial^2 u}{\partial x^2} + \frac{(\Delta y)^2}{2!} \frac{\partial^2 u}{\partial y^2} - \Delta x \Delta y \frac{\partial^2 u}{\partial x \partial y} + O(\Delta x^3)\right]
+\]
+
+\[
+c_4\left[u_{i+1,j-1} = u_{i,j} + \Delta x \frac{\partial u}{\partial x} - \Delta y \frac{\partial u}{\partial y} + \frac{(\Delta x)^2}{2!} \frac{\partial^2 u}{\partial x^2} + \frac{(\Delta y)^2}{2!} \frac{\partial^2 u}{\partial y^2} - \Delta x \Delta y \frac{\partial^2 u}{\partial x \partial y} + O(\Delta x^3)\right]
+\]
+
+\[
+c_5u_{i,j} = u_{i,j}
+\]
+
+
+Now taking a linear combination of these points and placing them in the equation-1, we get:
+
+\[
+\frac{\partial^2 u}{\partial x \partial y} = c_1 u_{i+1,j+1} + c_2 u_{i-1,j-1} + c_3 u_{i-1,j+1} + c_4 u_{i+1,j-1} + c_5 u_{i,j} + O(\Delta x^3)
+\]
+
+Now, using the constraints of the central difference scheme that the coefficients of the lower order derivatives must be zero and the coefficient of \(\frac{\partial^2 u}{\partial x \partial y}\) = 1, we will get matrix form.
+
+So,
+on equating coefficient of \(u_{i,j}\) to zero, we get, 
+\[
+(c_1 + c_2 + c_3 + c_4 + c_5)h = 0 
+\]
+
+on equating coefficient of \(\frac{\partial u}{\partial x}\) to zero, we get, 
+
+\[
+(c_1 - c_2 - c_3 + c_4)h = 0
+\]
+
+on equating coefficient of \(\frac{\partial u}{\partial y}\) to zero, we get,
+
+\[
+(c_1 - c_2 + c_3 - c_4)h = 0
+\]
+
+on equating coefficient of \(\frac{\partial^2 u}{\partial x^2}\) to zero, we get, 
+
+\[
+(c_1 + c_2 + c_3 + c_4)\frac{h^2}{2} = 0
+\]
+
+Note that here on equating coefficient of \(\frac{\partial^2 u}{\partial y^2}\) to zero results in the same equation as above, hence nothing new information is obtained.
+
+on equating coefficient of \(\frac{\partial^2 u}{\partial x \partial y}\) to one, we get, 
+
+\[
+(c_1 + c_2 - c_3 - c_4) = \frac{1}{h^2} =\frac{1}{\Delta x \Delta y}
+\]
+
+In matrix form it will be written as follows:
+
+\[
+\begin{bmatrix}
+1 & 1 & 1 & 1 & 1 \\
+1 & -1 & -1 & 1 & 0 \\
+1 & -1 & 1 & -1 & 0 \\
+1 & 1 & 1 & 1 & 0 \\
+1 & 1 & -1 & -1 & 0
+\end{bmatrix}
+\begin{bmatrix}
+c_1 \\
+c_2 \\
+c_3 \\
+c_4 \\
+c_5
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 \\
+0 \\
+0 \\
+0 \\
+\frac{1}{\Delta x \Delta y}
+\end{bmatrix}
+\]
+On solving this matrix we get:
+\[
+c_1 = \frac{1}{4 \Delta x \Delta y}, \quad c_2 = \frac{1}{4 \Delta x \Delta y}, \quad c_3 = -\frac{1}{4 \Delta x \Delta y}, \quad c_4 = -\frac{1}{4 \Delta x \Delta y}, \quad c_5 = 0
+\]
+
+Thus, the second order accurate finite difference approximation to compute the cross derivative \(\frac{\partial^2 u}{\partial x \partial y}\) of a function \(u(x, y)\) on a uniform grid is given by:
+
+\[
+\frac{\partial^2 u}{\partial x \partial y} \Big|_{i,j} = \frac{1}{4 \Delta x \Delta y} \left[ u_{i+1,j+1} - u_{i-1,j-1} - u_{i-1,j+1} + u_{i+1,j-1} \right] + O(\Delta x^3)
+\]
+
+ Since it is a uniform grid, so  \(\Delta x = \Delta y = h\). Thus, the above equation can be written as:
+
+\[
+\frac{\partial^2 u}{\partial x \partial y} \Big|_{i,j} = \frac{1}{4h^2} \left[ u_{i+1,j+1} + u_{i-1,j-1} - u_{i-1,j+1} - u_{i+1,j-1} \right] + O(\Delta x^3)
+\]
+
+Note that for Taylor series expansion of two variables, O($\Delta x^3$) term is also nullified as it has same set of signs as that of  O($\Delta x$). Hence the leading truncated term in Taylor series is of O($\Delta x^4$).
+So, Truncation error leading-order term will be,
+\[
+\frac{1}{h^2}\left[\left(\frac{h^4}{24}\right)\frac{\partial^4u}{\partial x^4} + \left(\frac{h^4}{24}\right)\frac{\partial^4u}{\partial y^4}  + 
+ \left(\frac{h^4}{4}\right)\left(\frac{\partial^4u}{\partial x^2  \partial y^2}\right)
+ + \left(\frac{h^4}{6}\right)\left(\frac{\partial^4u}{\partial x^3\partial y}\right) +
+ \left(\frac{h^4}{6}\right)\left(\frac{\partial^4u}{\partial x \partial y^3}\right)
+ \right]
+ \]
+ Thus, we got the truncation error leading-order term of O($\Delta x^2$).
+\end{itemize}
+\clearpage
+\section*{Question 2}
+Consider the initial value problem over the interval \( t = 0 \) to \( 2.0 \) where \( y(0) = 1 \).
+\[
+\frac{dy}{dt} = y t^2 - 1.1 y \tag{1}
+\]
+
+\begin{enumerate}
+    \item[(a)] Solve this ODE analytically and plot the solution.
+    \item[(b)] Obtain the numerical solution for the step sizes \( h = 0.5, 0.25, 0.125, 0.0625, 0.03125 \) using:
+    \begin{enumerate}
+        \item[i.] Euler’s explicit method.
+        \item[ii.] Second-order Adam’s-Bashforth.
+        \item[iii.] Second-order RK method (any value of dof).
+    \end{enumerate}
+    \item[(c)] Compute the maximum and average absolute errors for each step size using the analytical solution and obtain the error graph demonstrating the order of accuracy for each method. Note: use separate graphs for maximum and average errors to compare all three methods.
+    \item[(d)] Discuss the results.
+\end{enumerate}
+\section*{Solution}
+\begin{itemize}
+    \item[(a)] The analytical solution of the given IVP can be obtained as follows:
+\[
+    \frac{dy}{dt} = (t^2 - 1.1)y
+\]
+\[
+\frac{dy}{dt} = (t^2 - 1.1)
+\]
+\text{On integrating, given initial condition } y(0) = 1, \text{ we get,}
+
+\[
+\int_1^y \frac{dy}{y} = \int_0^t (t^2 - 1.1)dt
+\]
+\[
+\ln y = \frac{t^3}{3} - 1.1t
+\]
+\[
+y = e^{\frac{t^3}{3} - 1.1t}
+\]
+
+\text{Thus the analytical solution is as follows:}
+\[
+y(t) = e^{\frac{t^3}{3} - 1.1t}
+\]
+The plot for the analytical solution is as follows in figure \ref{Figure 1}:
+
+\begin{figure}[h]
+    \centering
+    % \includegraphics{NSDE_Current_Assignment_fig_plot/Analytical solution.png}
+    \includegraphics[width=10cm, height=8cm]{NSDE_Current_Assignment_fig_plot/Analytical solution.png}
+    \caption{Analytical solution for given IVP}
+    \label{Figure 1}
+\end{figure}
+From the graph, we can see that the solution to the IVP is first decreasing in the interval [0, $\sqrt1.1$], and then increasing onwards for the interval [$\sqrt{1.1}$, 2] . Thus, minimum value of \(y(t)\) is at $\sqrt{1.1}$. 
+
+\item[(b)]  \subsection*{}
+The numerical solution for the step sizes \( h = 0.5, 0.25, 0.125, 0.0625, \) and \( 0.03125 \) using:
+
+\subsubsection*{i. Euler’s Explicit Method}
+Euler’s explicit method is given by:
+\[
+y_{n+1} = y_n + h f(t_n, y_n)
+\]
+where \( h \) is the step size.
+
+\subsubsection*{ii. Second-Order Adams-Bashforth Method}
+The second-order Adams-Bashforth method is given by:
+\[
+y_{n+1} = y_n + \frac{h}{2} \left(3 f(t_n, y_n) - f(t_{n-1}, y_{n-1}) \right)
+\]
+
+\subsubsection*{iii. Second-Order Runge-Kutta (RK) Method}
+The second-order Runge-Kutta method is given by:
+\[
+y_{n+1} = y_n + \phi(t_n , y_n, h)h
+\]
+\[
+\phi(t_n, y_n,h) = b_1k_1 + b_2k_2
+\]
+So,
+\[
+y_{n+1} = y_n + (b_1k_1 + b_2k_2)h
+\]
+where,
+\[
+k_1 =  f(t_n, y_n)
+\]
+\&
+\[
+k_2 =  f \left( t_n + c_2h, y_n + a_{21}k_1h \right)
+\]
+we have 4 unknowns \(c_2, a_{21},b_1,b_2\) and 3 equations,so we have one degree of freedom; hence we chose \(c_2 =1\), and then obtain the rest of the unknown values as follows:
+\[
+   b_1 = b_2 = \frac{1}{2} , a_{21} = 1
+\]
+Thus, we get, 
+\[
+y_{n+1} = y_n + \frac{h}{2}\left(f(t_n,y_n) + f(t_n + h,  y_n + hf(t_n,y_n)\right )
+\]
+The corresponding to each method, code files are given in "q2" folder. Below are the plots for each method consisting of all step sizes. 
+
+\item[(c)]  The maximum and average absolute errors for each method for each step size using the analytical solution are given in the following tables.The error graphs demonstrating the order of accuracy for each method are given below. The plots for numerical solution by each method for all step sizes are as follows:
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=12cm, height=10cm]{NSDE_Current_Assignment_fig_plot/Explicit Euler Method for all step sizes.png}
+    \caption{Explicit Euler Method : Numerical solution}
+    \label{Figure 2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=10cm, height=8cm]{NSDE_Current_Assignment_fig_plot/Adam Bashforth_2 method for all step sizes.png}
+    \caption{Second order Adam's-Bashforth Method : Numerical solution}
+    \label{Figure 3}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=10cm, height=8cm]{NSDE_Current_Assignment_fig_plot/RK_2 for all step sizes.png}
+    \caption{Second order RK Method : Numerical solution}
+    \label{Figure 4}
+\end{figure}
+
+ \begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|}
+        \hline
+        \textbf{Step Size} & \textbf{Max Error} & \textbf{Average Error} \\
+        \hline
+        0.50000  & 1.20751  & 0.38211  \\
+        0.25000  & 0.83056  & 0.19923  \\
+        0.12500  & 0.51745  & 0.10232  \\
+        0.06250  & 0.29594  & 0.05195  \\
+        0.03125  & 0.15957  & 0.02619  \\
+        \hline
+    \end{tabular}
+    \caption{Maximum and Average Errors for Explicit Euler Method}
+    \label{tab: Explicit Euler method errors}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|c|c|c|}
+        \hline
+        \textbf{Step Size} & \textbf{Max Error} & \textbf{Average Error} \\
+        \hline
+        0.50000  & 0.46617  & 0.10805  \\
+        0.25000  & 0.28159  & 0.04357  \\
+        0.12500  & 0.11914  & 0.01402  \\
+        0.06250  & 0.03893  & 0.00392  \\
+        0.03125  & 0.01103  & 0.00102  \\
+        \hline
+    \end{tabular}
+    \caption{Maximum and Average Errors for second order Adam's-Bashforth Method}
+    \label{tab: Second order Adam's-Bashforth method errors}
+\end{table}
+
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|c|c|c|}
+        \hline
+        \textbf{Step Size} & \textbf{Max Error} & \textbf{Average Error} \\
+        \hline
+        0.50000  & 0.11926  & 0.03699  \\
+        0.25000  & 0.03160  & 0.00866  \\
+        0.12500  & 0.00850  & 0.00206  \\
+        0.06250  & 0.00220  & 0.00051  \\
+        0.03125  & 0.00056  & 0.00013  \\
+        \hline
+    \end{tabular}
+    \caption{Maximum and Average Errors for RK-2 Method}
+    \label{tab:RK-2 method errors}
+\end{table}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=12cm, height=10cm]{NSDE_Current_Assignment_fig_plot/Maximum error vs step size.png}
+    \caption{Maximum Error Vs Step size on log log scale}
+    \label{Figure 5}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=12cm, height=10cm]{NSDE_Current_Assignment_fig_plot/Average error vs step size.png}
+    \caption{Average Error Vs Step size on log-log scale}
+    \label{Figure 6}
+\end{figure}
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=12cm, height=10cm]{NSDE_Current_Assignment_fig_plot/Error in Explicit Euler method.png}
+    \caption{Error in Explicit Euler method}
+    \label{Figure 7}
+\end{figure}
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=12cm, height=10cm]{NSDE_Current_Assignment_fig_plot/Error in Adam Bashforth_2 method.png}
+    \caption{Error in Adam's-Bashforth-2 method}
+    \label{Figure 8}
+\end{figure}
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=12cm, height=10cm]{NSDE_Current_Assignment_fig_plot/Error in RK_2 method.png}
+    \caption{Error in RK-2 method}
+    \label{Figure 9}
+\end{figure}
+
+
+\item[(d)]  Note that Explicit Euler is a one-step method, so it is self-starting. While second order Adam's Bashforth is a multi-step method; hence, it is not self-starting. It requires the one previous point function evaluation. Therefore, without compromising its order of accuracy which is o($\Delta x^3$) in local truncation error and one order lower o($\Delta x^2$)in global truncation error due to accumulation of errors. We used the RK-2 having global truncation error of order o($\Delta x^2$) method to approximate the first point and then use second order Adam's Bashforth method  for approximating the rest of the points.
+\paragraph{} As we can see from figures \ref{Figure 2}, \ref{Figure 7} and from table \ref{tab: Explicit Euler method errors} that, as step size is decreasing the errors(truncation errors) are decreasing for explicit Euler method and it is approaching closer to the analytic solution, though it is a case of trade off between round-off error and truncation errors that will decide either more decrement of step size leads to closer to analytic solution or deviates from the analytic solution. from the figure \ref{Figure 6}, we can clearly inferred that order of accuracy of explicit Euler method is o($\Delta x$) in terms of global truncation error.    
+\paragraph{} Runge-Kutta second order method and Adam's Bashforth second order method, both have same order of accuracy o($\Delta x^2$) in global truncation error, but AB-2 relatively depends on one extra previous point function evaluation which leads to faster accumulation of error. Hence, AB-2 method is less accurate than RK-2 method which is confirmed by the tables \ref{tab: Second order Adam's-Bashforth method errors} and \ref{tab:RK-2 method errors}. After the certain point in interval [0, 2] of t, we can see from the figure \ref{Figure 6} that accumulation of error in AB-2 leads to deviation of its order of accuracy.i.e. slope being less than 2.
+\end{itemize}
+
+
+\clearpage
+\section*{Question 3}
+
+The following ODE describes the motion of a forced damped spring-mass system:
+
+\begin{equation*}
+        m \frac{d^2 x}{dt^2} + a \left| \frac{dx}{dt} \right| \frac{dx}{dt} + kx = F_0 \sin(\omega t)
+\end{equation*}
+
+where \( x \) \(\rightarrow\) displacement from equilibrium position (m), \( t \) \(\rightarrow\) time (s), \( m = 2 \) kg, \( a = 5 \) N/(m/s)\(^2\), and \( k = 6 \) N/m. The initial velocity is zero, and the initial displacement is \( x = 1 \) m. The values of \( F_0 \) and \( \omega \) are 2.5 N and 0.5 \( rad/sec \), respectively.
+
+\begin{enumerate}
+    \item[(a)]  Solve this equation using the RK-4 method over the time period \( 0 \leq t \leq 15s \).
+    
+    \item[(b)] Starting with time step \(\Delta t = 0.5 \) s, progressively reduce the time step size by half to show the convergence/grid independence of results. Plot the velocity-time and displacement-time curves, and discuss your observations.
+
+    \item [(c)] Find the maximum and minimum values of velocity and displacement, and the corresponding times.
+\end{enumerate}
+\subsection*{Solution}
+\begin{itemize}
+    \item [(a)] 
+\text{Given:} \quad \( m = 2kg, \quad a = 5N/(m/s)^2, \quad k = 6N/m, \quad x(0) = 1m, \quad \frac{dx}{dt}(0) = 0, \) \quad
+\( F_0 = 2.5N, \quad \omega = 0.5rad/sec. \)
+
+Rewriting the given equation, we get:
+
+\begin{equation*}
+    2 \frac{d^2x}{dt^2} + 5 \left| \frac{dx}{dt} \right| \frac{dx}{dt} + 6x = 2.5 \sin(0.5t)
+\end{equation*}
+
+Clearly this is a second-order differential equation with two initial conditions \( x(0) = 1 \) and \quad \( \frac{dx}{dt}(0) = 0 \).
+
+Thus, we will first convert this second-order differential equation into system of two first-order ordinary differential equations which are as follows:
+
+\begin{equation*}
+    \frac{dx}{dt} = v
+\end{equation*}
+
+\begin{equation*}
+    \frac{dv}{dt} = \frac{2.5 \sin(0.5t) - 5 |v| v - 6x}{2}
+\end{equation*}
+
+with initial conditions \( x(0) = 1 \) and \( v(0) = 0 \).
+
+ The numerical solution using the RK4 method over the time period \( 0 \leq t \leq 15s \) for a system of two ordinary Differential Equations is obtained using the code given in the cpp file in folder "q3". The numerical solution for the step size \( h = 0.03125 \) using the RK-4 method is given in below figure \ref{Figure 12}. In addition to this, velocity vs time plot by RK-4 method for step size \( h = 0.03125 \) is given in figure \ref{Figure 13}.
+ \paragraph{} As given second order ODE is non linear due to the term \(a|v|v\), however python Scipy library is so powerful that it provides several powerful numerical solvers for solving some non-linear ODEs, which closely resembles to its analytical solution. Actually, this library uses \(solve\_ivp\) function to choose best suitable numerical method among the available methods like: 
+ \begin{enumerate}
+     \item Adaptive Runge-Kutta method
+     \item BDF : Backward Differentiation Formula, multi-step method
+     ,etc.
+ \end{enumerate}
+ \paragraph{} The code for the implementation of Scipy library is given in the python notebook of folder "q3". Below are the obtained analytical solution plots for displacement vs time, refer figure \ref{figure 10} and for velocity vs time refer figure \ref{figure 11}
+ \begin{figure}
+     \centering
+     \includegraphics[width=12cm, height=10cm]{NSDE_Current_Assignment_fig_plot/figures/displacement_plot_analytical.png}
+     \caption{Analytical Solution: Displacement Vs Time}
+     \label{figure 10}
+ \end{figure}
+ \begin{figure}
+     \centering
+     \includegraphics[width=12cm , height = 10 cm]{NSDE_Current_Assignment_fig_plot/figures/velocity_plot_analytical.png}
+     \caption{Analytical Solution : Velocity Vs Time}
+     \label{figure 11}
+ \end{figure}
+ 
+ \begin{figure}
+     \centering
+     \includegraphics[width=12cm, height=10cm]{NSDE_Current_Assignment_fig_plot/figures/displacement_plot_0.03125.png}
+     \caption{Displacement Vs time by RK-4 method for step size = 0.03125}
+     \label{Figure 12}
+ \end{figure}
+ 
+ \begin{figure}
+     \centering
+     \includegraphics[width=12cm, height=10cm]{NSDE_Current_Assignment_fig_plot/figures/velocity_plot_0.03125.png}
+     \caption{Velocity Vs time by RK-4 method for step size = 0.03125}
+     \label{Figure 13}
+ \end{figure}
+ \clearpage
+ The solution methodology for a System of two Ordinary Differential Equations using the RK4 method is as follows:
+
+\begin{align*}
+    k_{11} &= f_1(\beta, t_n, x_n, v_n) \\
+    k_{12} &= f_2(\beta, t_n, x_n, v_n) \\
+    k_{21} &= f_1\left(\beta, t_n + \frac{h}{2}, x_n + k_{11}\frac{h}{2}, v_n + k_{12}\frac{h}{2} \right) \\
+    k_{22} &= f_2 \left(\beta, t_n + \frac{h}{2}, x_n + k_{11}\frac{h}{2}, v_n + k_{12} \frac{h}{2} \right) \\
+    k_{31} &= f_1 \left(\beta, t_n + \frac{h}{2}, x_n + k_{21}\frac{h}{2}, v_n + k_{22}\frac{h}{2} \right) \\
+    k_{32} &= f_2 \left(\beta, t_n + \frac{h}{2}, x_n + k_{21}\frac{h}{2}, v_n + k_{22}\frac{h}{2} \right) \\
+    k_{41} &= f_1(\beta, t_n + h, x_n + k_{31}h, v_n + k_{32}h) \\
+    k_{42} &= f_2(\beta, t_n + h, x_n + k_{31}h, v_n + k_{32}h) \\
+    x_{(n+1)} &= x_n + \frac{h}{6} \left( k_{11} + 2k_{21} + 2k_{31} + k_{41} \right) \\
+    v_{(n+1)} &= v_n + \frac{h}{6} \left( k_{12} + 2k_{22} + 2k_{32} + k_{42} \right) \\
+    t_{n+1} &= t_n + h
+\end{align*}
+
+where,
+   \(\beta\) is representing the parameters like   \(m , k , a , f_0, \omega\).
+While, 
+\( x_n \) and \( v_n \) are the dependent variables, in this case, displacement and velocity, respectively. 
+
+Also,
+\begin{equation*}
+     f_1(\beta, t_n, x_n, v_n) = v_n 
+\end{equation*} 
+\&
+\begin{equation*}
+    f_2(\beta, t_n, x_n, v_n) = \frac{2.5 \sin(0.5t_n) - 5 |v_n| v_n - 6x_n}{2}.
+\end{equation*}
+
+Substituting these functions in the above equations and solving gives the required numerical solution for the given second order ODE over the time period of \( 0 \leq t \leq 15s \).
+
+\item[(b)]  The code for the RK-4 method implementation  for \(step size = 0.5 , 0.25, 0.125, 0.0625, 0.03125\) is given in cpp file located at folder "q3". We can see from the figures \ref{figure 14} and \ref{figure 16} that decreasing step size from 0.5 to 0.03125 leads to the convergence of displacement and velocity plots to the analytical solution. That means convergence/grid is independent of results. 
+\paragraph{} I have taken differences between the displacements and velocities for consecutive step sizes(\(example : 0.5 \quad and \quad 0.25 ,\dots,\quad 0.0625 \quad and \quad 0.03125\)) at \(time = 5, \quad 10 \quad and \quad 15  secs\)  for which I had given the code in python notebook located at folder "q3". Refer the figures \ref{figure 15} and \ref{figure 17} in which we can clearly see that differences tend to zero as we move towards smaller and smaller step sizes. Thus, convergence is verified.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=12cm, height =10cm]{NSDE_Current_Assignment_fig_plot/figures/displacement_plot_all.png}
+    \caption{Displacement vs Time for all step sizes}
+    \label{figure 14}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=12 cm , height=10cm]{NSDE_Current_Assignment_fig_plot/figures/displacement_difference_plot.png}
+    \caption{Difference in displacements vs Time for consecutive step sizes}
+    \label{figure 15}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=12cm, height = 10cm]{NSDE_Current_Assignment_fig_plot/figures/velocity_plot_all.png}
+    \caption{Velocity vs Time for all step sizes}
+    \label{figure 16}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=12cm, height = 8cm]{NSDE_Current_Assignment_fig_plot/figures/velocity_difference_plot.png}
+    \caption{Difference in velocities vs Time for consecutive step sizes}
+    \label{figure 17}
+\end{figure}
+
+\clearpage
+\item[(c)] The maximum and minimum values of velocity and displacement, and corresponding times are obtained using RK-4 method with step size = 0.03125. The code for the same is given in "cpp" file located at folder "q3". Below table \ref{tab:max_min_values} is attached for the same:
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|c|c|c|}
+        \hline
+        \textbf{Quantity} & \textbf{Value} & \textbf{Time (t) (in sec)} \\
+        \hline
+        Maximum Displacement & 1.000000 & 0.00000 \\
+        Minimum Displacement & -0.478011 & 9.59375 \\
+        Maximum Velocity & 0.411387 & 2.65625 \\
+        Minimum Velocity & -0.827756 & 0.56250 \\
+        \hline
+    \end{tabular}
+    \caption{Maximum and Minimum Values of Displacement and Velocity}
+    \label{tab:max_min_values}
+\end{table}
+\end{itemize}
+
+\clearpage
+\section*{Question 4}
+Given the equation:
+\begin{equation}
+    \frac{dy}{dx} = -1000y + 1000e^{-x} - e^{-x}
+\end{equation}
+
+\begin{enumerate}
+    \item[(a)] Estimate the step-size ($\Delta x_{st}$) required to maintain stability using the explicit Euler method.
+    
+    \item[(b)] With $y(0)$ as 0.5 and 1.0, use the explicit and implicit Euler to obtain a solution from $x = 0$ to $2$ using 
+    $\Delta x = 0.1$ and $\Delta x_{st}$. Compare the solutions from the explicit and implicit Euler schemes.
+\end{enumerate}
+
+\subsection*{Solution}
+\begin{itemize}
+    \item [(a)]  the given ODE is linear. Thus, we can solve it using 
+    Leibnitz's method as follows: 
+    
+\begin{equation*}
+  \frac{dy}{dx} = -1000y + 1000e^{-x} - e^{-x}
+\end{equation*}
+ Rewriting the equation, we get,
+ \begin{equation*}
+     \frac{dy}{dx} + 1000y = 1000e^{-x} - e^{-x}
+ \end{equation*}
+
+ By comparing with standard form first order LDE,
+ \begin{equation*}
+     \frac{dy}{dx} + p(x)y = q(x) 
+ \end{equation*}
+ 
+We get, 
+
+Integrating factor = \(e^{\int p(x) \,dx}\) = \(e^{\int 1000\,dx}\) = 
+\(e^{1000x}\)
+
+Thus, by multiplying with integrating factor to both sides of equation and then solving the equation, we get,
+
+\begin{equation*}
+    y = e^{-x} + ce^{-1000x}
+\end{equation*}
+
+where, c is constant of integration which can be evaluated by the given initial condition.
+
+\textbf{\(CASE-I : \)} Initial condition is : y(0) = 0.5
+by evaluating, we get, \(c = -0.5\), hence given LDE solution will be,
+\begin{equation}
+      y = e^{-x} - 0.5e^{-1000x}
+\end{equation}
+
+\textbf{\(CASE-II :\)} Initial condition is : y(0) = 1.0
+by evaluating, we get, \(c = 0\), hence given LDE solution will be,
+\begin{equation}
+    y = e^{-x}
+\end{equation}
+
+\paragraph{} As we can clearly see that in  \(case-I \) solution to LDE contains the transient term \(e^{-1000x}\), hence it can be classified as \(stiff \quad equation\). This stiff equation is decaying, at first solution is dictated by \(e^{-1000x}\), this transient portion of a stiff equation- solution will be rapidly decayed to zero as \("x"\) increases and then after this term decayed significantly, dominance of the solution is governed by \(e^{-x}\). This can be witnessed by the analytical solution plots given in the figures \ref{figure 18} and \ref{figure 19}.
+\paragraph{} The Analytical solution for \(case-II\) is an exponentially decaying solution. Again, the implicit methods more precisely multi-step implicit methods are preferred to explicit methods for numerically solving the stiff equations. Hence, implicit Euler method is preferred to explicit Euler method, because, implicit euler is unconditionally stable, while explicit euler is stable under some condition. This is proved below.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=12cm ,height =10cm]{NSDE_Current_Assignment_fig_plot/figuresq4/analytical_solution_1.png}
+    \caption{Analytical solution with IC: y(0) =1.0}
+    \label{figure 18}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=12cm, height = 10cm]{NSDE_Current_Assignment_fig_plot/figuresq4/analytical_solution_0.5.png}
+    \caption{Analytical solution with IC: y(0) = 0.5}
+    \label{figure 19}
+\end{figure}
+
+\clearpage
+ \textbf{Explicit Euler method: }
+  Explicit Euler method is given by,
+ \begin{equation*}
+     y_{i+1} = y_i + hf(x_i, y_i)
+ \end{equation*}
+On computer it will be approximated as,
+\begin{equation*}
+    w_{i+1} = w_{i} + hf(x_i,w_i)
+\end{equation*}
+By subtracting these equations, we get,
+\begin{equation*}
+    \epsilon_{i+1} = \epsilon_i + h\left[f(x_i,y_i) - f(x_i,w_i)\right]
+\end{equation*}
+then, factoring out \(\epsilon_i\), we get,
+\begin{equation*}
+    \frac{\epsilon_{i+1}}{\epsilon_i} = \left[1 + h\frac{\partial f(x_i,y_i)}{\partial y}\right]
+\end{equation*}
+As, we know errors  should be decreasing, hence,
+\begin{equation*}
+    \left |\frac{\epsilon_{i+1}}{\epsilon_i}\right | < 1
+\end{equation*}
+So,
+\begin{equation*}
+    \left |1 + h\frac{\partial f(x_i, y_i)}{\partial y} \right |  < 1
+\end{equation*}
+As, we know, 
+\begin{equation*}
+    \frac{\partial f(x_i, y_i)}{\partial y} = \frac{\partial{[-1000y + 1000e^{-x} + e^{-x}]}}{\partial y} = -1000
+\end{equation*}
+Hence, 
+\begin{equation*}
+    -1 < 1-1000h < 1
+\end{equation*}
+\begin{equation*}
+    \Rightarrow h < \frac{2}{1000}
+\end{equation*}
+
+Therefore, explicit Euler method is stable when the step size \(h < 0.002\). 
+\\
+\vspace{1cm}
+\\
+\textbf{Implicit Euler method: }
+Implicit Euler method is given by,
+\begin{equation*}
+     y_{i+1} = y_i + hf(x_{i+1}, y_{i+1})
+ \end{equation*}
+On computer it will be approximated as,
+\begin{equation*}
+    w_{i+1} = w_{i} + hf(x_{i+1},w_{i+1})
+\end{equation*}
+By subtracting these equations, we get,
+\begin{equation*}
+    \epsilon_{i+1} = \epsilon_i + h\left[f(x_{i+1},y_{i+1}) - f(x_{i+1},w_{i+1})\right]
+\end{equation*}
+then, factoring out \(\epsilon_{i+1}\), we get,
+\begin{equation*}
+    \frac{\epsilon_{i+1}}{\epsilon_i} = \left[1 + h\frac{\partial f(x_i,y_i)}{\partial y}\right]^{-1}
+\end{equation*}
+As, we know errors  should be decreasing, hence,
+\begin{equation*}
+    \left |\frac{1}{|1 - h1000} \right |  < 1
+\end{equation*}
+As \(h>0\). Therefore, for any value of h, above condition is satisfied.
+
+Hence, 
+Implicit Euler method is unconditionally stable.
+
+Therefore, the step-size (\(\Delta x = h)\) required to maintain stability using the explicit Euler method is:
+
+\fbox{ \(h_{st} = \Delta x_{st}  < 0.002\)}
+
+\clearpage
+\item[(b)]  The code for implementation of explicit and implicit Euler is given in the cpp file in folder "q4". As we can clearly see from the figures \ref{figure 20} , \ref{figure 23} that error growth is exponential for the step-sizes larger than the \((\Delta x_{st})\) .i.e. larger than 0.002 
+\paragraph{} From the figures \ref{figure 21} and \ref{figure 24}, we can conclude that initially explicit Euler method make some oscillations and then approximates the analytical solution, in these figures we used step-size equal to \((\Delta x_{st})\). 
+\paragraph{} While from the figures \ref{figure 22} and \ref{figure 25}, we can say that numerical solution approximates the true solution very well, ignoring the slight initial oscillations which may arises due to the subtraction of nearly same numbers.  
+\paragraph{}
+    \textbf{example: } As \(f(x,y) = -1000y + 1000e^{-x} -e^{-x} \) initially
+\(x = 0.0001\) which leads to the subtraction of \(1000e^{-0.0001}  - e^{-0.0001} = 1000\times 0.999900005 - 0.999900005\) , 
+here both have the same significant digits, hence this leads to vulnerability to round off errors. Hence, we see the slight oscillations initially.
+
+\paragraph{}
+Finally, we can conclude for the explicit Euler method that:  
+\[
+\begin{aligned}
+    \text{(i)} & \quad h > 0.002 \quad \Rightarrow \quad \text{completely unstable}. \\
+    \text{(ii)} & \quad 0.001 < h < 0.002 \quad \Rightarrow \quad \text{partially/oscillatory stable}. \\
+    \text{(iii)} & \quad h \leq 0.001 \quad \Rightarrow \quad \text{completely stable}.
+\end{aligned}
+\]
+\paragraph{}
+As we have discussed that implicit Euler method is unconditionally stable for any step-size. This is witnessed from the figure \ref{figure 26} to figure \ref{figure 31}.
+\paragraph{} In figure \ref{figure 26}, segment appears slightly slant at the beginning,  whereas in figures \ref{figure 27} and \ref{figure 28}, it looks nearly vertical. This happens due to the \textit{"numerical damping"}, as I used a gap of 0.1 between the consecutive x-axis points for the figure \ref{figure 26}, as a result, it plots relatively with less number of points which could not capture the stiffness well, leading to the slight smoothness, that's why, slightly slant segment appears. 
+
+\paragraph{} I have used \textit{Newton-Raphson method} as a non-linear solver for the implicit Euler method, code for the same is given in cpp file located at folder "q4". 
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.6\textwidth]{NSDE_Current_Assignment_fig_plot/figuresq4/explicit_IC0.5_step0.1.png}
+    \caption{Explicit Euler method with IC: \( y(0) = 0.5 \), step size \( h = 0.1 \)}
+    \label{figure 20}
+    
+    \vspace{10pt} % Adds vertical spacing
+
+    \includegraphics[width=0.6\textwidth]{NSDE_Current_Assignment_fig_plot/figuresq4/explicit_IC0.5_step0.002.png}
+    \caption{Explicit Euler method with IC: \( y(0) = 0.5 \), step size \( h = 0.002 \)}
+    \label{figure 21}
+    
+    \vspace{10pt} % Adds vertical spacing
+
+    \includegraphics[width=0.6\textwidth]{NSDE_Current_Assignment_fig_plot/figuresq4/explicit_IC0.5_step0.0001.png}
+    \caption{Explicit Euler method with IC: \( y(0) = 0.5 \), step size \( h = 0.0001 \)}
+    \label{figure 22}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.6\textwidth]{NSDE_Current_Assignment_fig_plot/figuresq4/explicit_IC1.0_step0.1.png}
+    \caption{Explicit Euler method with IC: \( y(0) = 1.0 \), step size \( h = 0.1 \)}
+    \label{figure 23}
+    
+    \vspace{10pt} % Adds vertical spacing
+
+    \includegraphics[width=0.6\textwidth]{NSDE_Current_Assignment_fig_plot/figuresq4/explicit_IC1.0_step0.002.png}
+    \caption{Explicit Euler method with IC: \( y(0) = 1.0 \), step size \( h = 0.002 \)}
+    \label{figure 24}
+    
+    \vspace{10pt} % Adds vertical spacing
+
+    \includegraphics[width=0.6\textwidth]{NSDE_Current_Assignment_fig_plot/figuresq4/explicit_IC1.0_step0.0001.png}
+    \caption{Explicit Euler method with IC: \( y(0) = 1.0 \), step size \( h = 0.0001 \)}
+    \label{figure 25}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.6\textwidth]{NSDE_Current_Assignment_fig_plot/figuresq4/implicit_IC0.5_step0.1.png}
+    \caption{Implicit Euler method with IC: \( y(0) = 0.5 \), step size \( h = 0.1 \)}
+    \label{figure 26}
+    
+    \vspace{10pt} % Adds vertical spacing
+
+    \includegraphics[width=0.6\textwidth]{NSDE_Current_Assignment_fig_plot/figuresq4/implicit_IC0.5_step0.002.png}
+    \caption{Implicit Euler method with IC: \( y(0) = 0.5 \), step size \( h = 0.002 \)}
+    \label{figure 27}
+    
+    \vspace{10pt} % Adds vertical spacing
+
+    \includegraphics[width=0.6\textwidth]{NSDE_Current_Assignment_fig_plot/figuresq4/implicit_IC0.5_step0.0001.png}
+    \caption{Implicit Euler method with IC: \( y(0) = 0.5 \), step size \( h = 0.0001 \)}
+    \label{figure 28}
+\end{figure}
+
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.6\textwidth]{NSDE_Current_Assignment_fig_plot/figuresq4/implicit_IC1.0_step0.1.png}
+    \caption{Implicit Euler method with IC: \( y(0) = 1.0 \), step size \( h = 0.1 \)}
+    \label{figure 29}
+    
+    \vspace{10pt} % Adds vertical spacing
+
+    \includegraphics[width=0.6\textwidth]{NSDE_Current_Assignment_fig_plot/figuresq4/implicit_IC1.0_step0.002.png}
+    \caption{Implicit Euler method with IC: \( y(0) = 1.0 \), step size \( h = 0.002 \)}
+    \label{figure 30}
+    
+    \vspace{10pt} % Adds vertical spacing
+
+    \includegraphics[width=0.6\textwidth]{NSDE_Current_Assignment_fig_plot/figuresq4/implicit_IC1.0_step0.0001.png}
+    \caption{Implicit Euler method with IC: \( y(0) = 1.0 \), step size \( h = 0.0001 \)}
+    \label{figure 31}
+\end{figure}
+
+\end{itemize}
+\clearpage
+\section*{Acknowledgment}
+\textbf{I would like to acknowledge the use of ChatGPT and GitHub Copilot for code snippet support in this assignment.}
+
+
+
+
+\end{document}
